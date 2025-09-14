@@ -34,4 +34,29 @@ public class ReservationsTests
         content.Headers.ContentType = new("application/json");
         return await client.PostAsync("reservations", content);
     }
+
+    [Fact]
+    public async Task PostValidReservationWhenDatabaseIsEmpty()
+    {
+        var db = new FakeDatabase();
+        var sut = new ReservationsController(db);
+
+        var dto = new ReservationDto
+        {
+            At = "2023-11-24 19:00",
+            Email = "juliad@example.net",
+            Name = "Julia Doma",
+            Quantity = 5
+        };
+        await sut.Post(dto);
+        
+        var expected = new Reservation
+        (
+            new DateTime(2023, 11, 24,19, 0 ,0),
+            dto.Email,
+            dto.Name,
+            dto.Quantity
+        );
+        Assert.Contains(expected, db);
+    }
 }

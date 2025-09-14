@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Restaurant.RestApi.Controllers;
+namespace Restaurant.RestApi;
 
 [Route("")]
 [SuppressMessage(
