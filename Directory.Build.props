@@ -5,4 +5,8 @@
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <AnalysisLevel>latest</AnalysisLevel>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CA2007</NoWarn>
+    </PropertyGroup>
 </Project>
