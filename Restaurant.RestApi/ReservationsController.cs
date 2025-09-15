@@ -39,6 +39,10 @@ public class ReservationsController
         {
             return new BadRequestResult();
         }
+        catch (ArgumentOutOfRangeException)
+        {
+            return new BadRequestResult();
+        }
 
         var r = new Reservation(
             DateTime.Parse(dto.At, CultureInfo.InvariantCulture),
