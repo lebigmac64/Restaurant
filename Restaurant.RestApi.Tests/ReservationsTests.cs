@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -65,5 +66,28 @@ public class ReservationsTests
             dto.Quantity
         );
         Assert.Contains(expected, db);
+    }
+    
+    [Theory]
+    [InlineData(null, "danielb@example.com", "Daniel Brühl", 3)]
+    [InlineData("2023-03-10 19:00", null, "Daniel Brühl", 3)]
+    [InlineData("2023-03-10 19:00", "danielb@example.com", null, 3)]
+    [InlineData("2023-03-10 19:00", "terezah@git.com", "Terezah Git", 0)]
+    [InlineData("2023-03-10 19:00", "terezah@git.com", "Terezah Git", -1)]
+    public async Task PostInvalidReservation(
+        string? at,
+        string? email,
+        string? name,
+        int quantity)
+    {
+        var response = await PostReservation(new
+        {
+            at,
+            email,
+            name,
+            quantity
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }

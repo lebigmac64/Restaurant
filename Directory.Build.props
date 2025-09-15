@@ -4,6 +4,7 @@
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <AnalysisLevel>latest</AnalysisLevel>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <PropertyGroup>
