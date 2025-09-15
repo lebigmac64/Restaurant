@@ -1,30 +1,35 @@
 using Restaurant.RestApi;
+using Restaurant.RestApi.Persistence.Repositories;
 
-var builder = WebApplication.CreateBuilder(args);
+internal class Program
 {
-    var services = builder.Services;
-    services.AddControllers();
-    services.AddSingleton<IReservationsRepository, NullRepository>();
-}
-
-var app = builder.Build();
-{
-    if (app.Environment.IsDevelopment())
+    public static void Main(string[] args)
     {
-        app.UseDeveloperExceptionPage();
-    }
+        var builder = WebApplication.CreateBuilder(args);
+        {
+            var services = builder.Services;
+            var configuration = builder.Configuration;
+            var connectionString = configuration.GetConnectionString("Restaurant");
+            ArgumentException.ThrowIfNullOrEmpty(connectionString);
     
-    app.UseRouting();
-    app.MapControllers();
-}
-app.Run();
+            services.AddControllers();
+    
+            MigrationTool.Migrate(connectionString);
+    
+            services.AddSingleton<IReservationsRepository>(
+                new SqlReservationRepository(connectionString));
+        }
 
-// A repository that does nothing, for vertical slice development.
-// Later, we will replace it with a real database implementation.
-internal class NullRepository : IReservationsRepository
-{
-    public Task Create(Reservation reservation)
-    {
-        return Task.CompletedTask;
+        var app = builder.Build();
+        {
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+    
+            app.UseRouting();
+            app.MapControllers();
+        }
+        app.Run();
     }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -26,12 +27,12 @@ public class ReservationsTests
         Justification = "URL isn't passed as variable, but as string literal.")]
     private static async Task<HttpResponseMessage> PostReservation(object reservation)
     {
-        using var factory = new WebApplicationFactory<Program>();
+        using var factory = new RestaurantApiFactory();
         var client = factory.CreateClient();
         
         string json = JsonSerializer.Serialize(reservation);
         using var content = new StringContent(json);
-        content.Headers.ContentType = new("application/json");
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         return await client.PostAsync("reservations", content);
     }
 

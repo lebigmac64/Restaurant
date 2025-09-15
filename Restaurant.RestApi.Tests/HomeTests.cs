@@ -11,7 +11,7 @@ public class HomeTests
         Justification = "URL isn't passed as variable, but as string literal.")]
     public async Task HomeIsOk()
     {
-        using var factory = new WebApplicationFactory<Program>();
+        using var factory = new RestaurantApiFactory();
         var client = factory.CreateClient();
 
         using var request = new HttpRequestMessage(HttpMethod.Get, "");
