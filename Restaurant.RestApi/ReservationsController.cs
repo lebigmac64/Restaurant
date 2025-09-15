@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Restaurant.RestApi;
@@ -9,23 +11,47 @@ namespace Restaurant.RestApi;
     Justification = "Controllers must be public for ASP.NET Core routing.")]
 public class ReservationsController
 {
+    private readonly IReservationsRepository _reservationsRepository;
+    
     public ReservationsController(IReservationsRepository repository)
     {
-        Repository = repository;
+        _reservationsRepository = repository;
     }
     
-    public IReservationsRepository Repository { get; }
-    
-    public async Task Post(ReservationDto dto)
+    [SuppressMessage(
+    "Usage", 
+    "CA2208:Instantiate argument exceptions correctly", 
+    Justification = "Quantity is a property of dto and is relevant for this exception.")]
+    public async Task<ActionResult> Post([FromBody] ReservationDto dto)
     {
-        ArgumentNullException.ThrowIfNull(dto);
+        try
+        {
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(dto.At);
+            ArgumentNullException.ThrowIfNull(dto.Email);
+            ArgumentNullException.ThrowIfNull(dto.Name);
+            if (dto.Quantity < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(dto.Quantity));
+            }
+        }
+        catch (ArgumentNullException)
+        {
+            return new BadRequestResult();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return new BadRequestResult();
+        }
 
-        await Repository
-            .Create(
-                new Reservation(
-                    new DateTime(2023, 11, 24,19, 0 ,0),
-                    "juliad@example.net",
-                    "Julia Doma",
-                    5));
+        var r = new Reservation(
+            DateTime.Parse(dto.At, CultureInfo.InvariantCulture),
+            dto.Email!,
+            dto.Name!,
+            dto.Quantity);
+        
+        await _reservationsRepository.Create(r);
+
+        return new NoContentResult();
     }
 }
