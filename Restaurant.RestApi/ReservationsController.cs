@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Restaurant.RestApi;
@@ -9,23 +10,23 @@ namespace Restaurant.RestApi;
     Justification = "Controllers must be public for ASP.NET Core routing.")]
 public class ReservationsController
 {
+    private readonly IReservationsRepository _reservationsRepository;
+    
     public ReservationsController(IReservationsRepository repository)
     {
-        Repository = repository;
+        _reservationsRepository = repository;
     }
     
-    public IReservationsRepository Repository { get; }
-    
-    public async Task Post(ReservationDto dto)
+    public async Task Post([FromBody] ReservationDto dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
-        await Repository
-            .Create(
-                new Reservation(
-                    new DateTime(2023, 11, 24,19, 0 ,0),
-                    "juliad@example.net",
-                    "Julia Doma",
-                    5));
+        var r = new Reservation(
+            DateTime.Parse(dto.At!, CultureInfo.InvariantCulture),
+            dto.Email!,
+            dto.Name!,
+            dto.Quantity);
+        
+        await _reservationsRepository.Create(r);
     }
 }
